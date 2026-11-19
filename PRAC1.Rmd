@@ -1,0 +1,93 @@
+```{r}
+library(tidyverse)
+mycsv <- read_csv("GIS/WK1/fly-tipping-borough-CORRECTED.csv")  
+```
+```{r}
+spec(mycsv)
+```
+```{r}
+summary(mycsv)
+```
+
+```{r}
+library(sf)
+shape <- st_read("GIS/WK1/statistical-gis-boundaries-london/statistical-gis-boundaries-london/ESRI/London_Borough_Excluding_MHW.shp")
+```
+```{r}
+summary(shape)
+```
+```{r}
+plot(shape)
+```
+
+
+```{r}
+spec(mycsv)
+```
+```{r}
+library(sf)
+shape%>%
+  st_geometry()%>%
+  plot()
+```
+
+```{r}
+shape2 <- shape%>%
+  merge(.,
+        mycsv,
+        by.x="GSS_CODE", 
+        by.y="code")
+```
+```{r}
+shape%>%
+  head(., n=10)
+```
+```{r}
+shape%>%
+  head(shape,n=10)
+```
+```{r}
+head(shape,n=10)
+```
+```{r}
+library(tmap)
+```
+```{r}
+tmap_mode("plot")
+# change the fill to your column name if different
+shape2 %>%
+  qtm(.,fill = "2011-12")
+```
+```{r}
+shape2%>% st_write(.,
+"GIS/WK1/flytipping.gpkg",
+layer="london_boroughs_fly_tipping",
+delete_dsn = TRUE
+)
+```
+```{r}
+library(readr)
+library(RSQLite)
+
+con <- dbConnect(RSQLite::SQLite(),dbname="GIS/WK1/flytipping11-12.gpkg")
+```
+```{r}
+con%>%
+  dbListTables()
+```
+```{r}
+con%>%
+  dbWriteTable(.,
+               "original_csv",
+               mycsv,
+               overwrite=TRUE)
+
+
+con%>%
+  dbDisconnect()
+```
+```{r}
+ls()
+```
+
+
